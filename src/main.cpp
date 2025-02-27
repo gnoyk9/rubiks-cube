@@ -2,7 +2,6 @@
 #include "Cube.hpp"
 #include <iostream>
 #include <SFML/Graphics.hpp>
-// #include <thread>
 
 int main() {
     Cube cube;
@@ -10,28 +9,39 @@ int main() {
     // Create a window (800x600 is the size)
     sf::RenderWindow window(sf::VideoMode({800, 800}), "Rubik's Cube");
     sf::CircleShape shape(100.f);
+
+    const auto onClose = [&window](const sf::Event::Closed&)
+    {
+        window.close();
+    };
+
+    const auto onKeyPressed = [&window, &cube](const sf::Event::KeyPressed& keyPressed)
+    {
+        if (keyPressed.scancode == sf::Keyboard::Scancode::Escape)
+            window.close();
+        if (keyPressed.scancode == sf::Keyboard::Scancode::U) {
+            cube.move("U");
+        } else if (keyPressed.scancode == sf::Keyboard::Scancode::D) {
+            cube.move("D");
+        } else if (keyPressed.scancode == sf::Keyboard::Scancode::L) {
+            cube.move("L");
+        } else if (keyPressed.scancode == sf::Keyboard::Scancode::R) {
+            cube.move("R");
+        } else if (keyPressed.scancode == sf::Keyboard::Scancode::F) {
+            cube.move("F");
+        } else if (keyPressed.scancode == sf::Keyboard::Scancode::B) {
+            cube.move("B");
+        }
+    };
     
     std::cout << "Initial Cube State:\n";
     cube.display_in_terminal();
     
     while (window.isOpen()) {
-        while (const std::optional event = window.pollEvent())
-        {
-            if (event->is<sf::Event::Closed>())
-                window.close();
-        }
+        window.handleEvents(onClose, onKeyPressed);
         window.clear();
         cube.draw(window);
         window.display();
-
-        std::cout << "Enter a move (U, D, L, R, F, B) or Q to quit: ";
-        std::cin >> move;
-        
-        if (move == "Q" || move == "q") {
-            window.close();
-            break;
-        }
-        cube.move(move);
     }
  
     return 0;
